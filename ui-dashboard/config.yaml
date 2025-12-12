@@ -1,0 +1,31 @@
+# Application Configuration File
+# This file provides default configuration values
+# Priority: .env variables > config.yaml > hardcoded defaults
+
+# Project identifier
+projectName: u106_multi_account_algo_trading
+
+# Server ports
+ports:
+  vite: 7106
+  websocket: 6106
+  api: 5106
+
+# WebSocket configuration
+websocket:
+  url: ws://127.0.0.1:6106
+  reconnect:
+    initialDelay: 1000
+    maxDelay: 30000
+    backoffMultiplier: 2
+
+# API configuration
+api:
+  baseUrl: http://127.0.0.1:5106
+  endpoints:
+    sendRequest: /api/send-request
+
+# Message types
+messageTypes:
+  applicationState: application_state
+  appConfig: app_config
