@@ -5,6 +5,7 @@ import Login from './pages/Login'
 import Home from './pages/Home'
 import WebSocketPage from './pages/WebSocketPage'
 import OpenPositionsPage from './pages/OpenPositionsPage'
+import OpenOrdersPage from './pages/OpenOrdersPage'
 import AccountSummaryPage from './pages/AccountSummaryPage'
 import ApplicationStateDetailsPage from './pages/ApplicationStateDetailsPage'
 
@@ -57,6 +58,10 @@ function App() {
       <Route
         path="/open_positions"
         element={<OpenPositionsPage state={appState} />}
+      />
+      <Route
+        path="/open_orders"
+        element={<OpenOrdersPage state={appState} />}
       />
       <Route
         path="/account_summary"

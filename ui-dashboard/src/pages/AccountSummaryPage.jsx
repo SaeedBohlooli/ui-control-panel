@@ -1,111 +1,13 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import PageHeader from '../components/PageHeader'
 import PageFooter from '../components/PageFooter'
-import { getWebSocketUrl, getReconnectConfig } from '../config/appConfig'
+import { useWebSocket } from '../hooks/useWebSocket'
 
 function AccountSummaryPage() {
-  const [wsData, setWsData] = useState(null)
-  const [status, setStatus] = useState('disconnected')
-  const [lastReceived, setLastReceived] = useState(null)
+  const { data: wsData, status, lastReceived, retryCount, retryTimeout, reconnect } = useWebSocket('application_state')
   const [elapsedSeconds, setElapsedSeconds] = useState(null)
-  const [retryCount, setRetryCount] = useState(0)
-  const [retryTimeout, setRetryTimeout] = useState(null)
-  const wsRef = useRef(null)
-  const retryTimeoutRef = useRef(null)
   const [sortConfig, setSortConfig] = useState({ key: 'field', direction: 'asc' })
-
-  const connectWs = () => {
-    if (retryTimeoutRef.current) {
-      clearTimeout(retryTimeoutRef.current)
-      retryTimeoutRef.current = null
-      setRetryTimeout(null)
-    }
-
-    let mounted = true
-    try {
-      const ws = new WebSocket(getWebSocketUrl())
-      wsRef.current = ws
-
-      ws.onopen = () => {
-        if (!mounted) return
-        setStatus('connected')
-        setRetryCount(0)
-      }
-
-      ws.onmessage = (ev) => {
-        if (!mounted) return
-        const raw = ev.data
-        try {
-          const parsed = JSON.parse(raw)
-          if (parsed.type === 'application_state') {
-            setLastReceived(Date.now())
-            setWsData(parsed)
-          }
-        } catch (e) {
-          // ignore non-JSON messages
-        }
-      }
-
-      ws.onerror = (err) => {
-        if (!mounted) return
-        setStatus('error')
-        console.error('WebSocket error', err)
-      }
-
-      ws.onclose = () => {
-        if (!mounted) return
-        setStatus('closed')
-        const reconnectConfig = getReconnectConfig()
-        const nextRetry = Math.min(
-          reconnectConfig.initialDelay * Math.pow(reconnectConfig.backoffMultiplier, retryCount),
-          reconnectConfig.maxDelay
-        )
-        setRetryTimeout(nextRetry)
-        retryTimeoutRef.current = setTimeout(() => {
-          if (mounted) {
-            setRetryCount((c) => c + 1)
-            connectWs()
-          }
-        }, nextRetry)
-      }
-    } catch (err) {
-      setStatus('error')
-      console.error('WebSocket failed to construct', err)
-      const reconnectConfig = getReconnectConfig()
-      const nextRetry = Math.min(
-        reconnectConfig.initialDelay * Math.pow(reconnectConfig.backoffMultiplier, retryCount),
-        reconnectConfig.maxDelay
-      )
-      setRetryTimeout(nextRetry)
-      retryTimeoutRef.current = setTimeout(() => {
-        if (mounted) {
-          setRetryCount((c) => c + 1)
-          connectWs()
-        }
-      }, nextRetry)
-    }
-
-    return () => {
-      mounted = false
-    }
-  }
-
-  useEffect(() => {
-    connectWs()
-    return () => {
-      if (retryTimeoutRef.current) {
-        clearTimeout(retryTimeoutRef.current)
-      }
-      try {
-        if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-          wsRef.current.close()
-        }
-      } catch (e) {
-        // ignore
-      }
-    }
-  }, [])
 
   useEffect(() => {
     if (!lastReceived) {
@@ -166,10 +68,7 @@ function AccountSummaryPage() {
         elapsedSeconds={elapsedSeconds}
         retryTimeout={retryTimeout}
         retryCount={retryCount}
-        onReconnect={() => {
-          setRetryCount(0)
-          connectWs()
-        }}
+        onReconnect={reconnect}
       />
 
       {accountInfo ? (

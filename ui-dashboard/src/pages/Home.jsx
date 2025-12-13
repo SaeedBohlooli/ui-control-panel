@@ -113,6 +113,19 @@ function Home({ onLogout }) {
               Open Positions
             </button>
           </Link>
+          <Link to="/open_orders">
+            <button style={{ 
+              padding: '12px 24px', 
+              fontSize: 16,
+              background: '#10b981',
+              color: 'white',
+              border: 'none',
+              borderRadius: 6,
+              cursor: 'pointer'
+            }}>
+              Open Orders
+            </button>
+          </Link>
           <Link to="/account_summary">
             <button style={{ 
               padding: '12px 24px', 

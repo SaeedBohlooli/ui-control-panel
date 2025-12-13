@@ -1,114 +1,15 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import PageHeader from '../components/PageHeader'
 import PageFooter from '../components/PageFooter'
-import { getWebSocketUrl, getReconnectConfig, getFullApiUrl } from '../config/appConfig'
+import { getFullApiUrl } from '../config/appConfig'
+import { useWebSocket } from '../hooks/useWebSocket'
 
 function OpenPositionsPage() {
-  const [wsData, setWsData] = useState(null)
-  const [status, setStatus] = useState('disconnected')
-  const [lastReceived, setLastReceived] = useState(null)
+  const { data: wsData, status, lastReceived, retryCount, retryTimeout, reconnect } = useWebSocket('application_state')
   const [elapsedSeconds, setElapsedSeconds] = useState(null)
-  const [retryCount, setRetryCount] = useState(0)
-  const [retryTimeout, setRetryTimeout] = useState(null)
-  const wsRef = useRef(null)
-  const retryTimeoutRef = useRef(null)
   const [quantities, setQuantities] = useState({})
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' })
-
-  const connectWs = () => {
-    if (retryTimeoutRef.current) {
-      clearTimeout(retryTimeoutRef.current)
-      retryTimeoutRef.current = null
-      setRetryTimeout(null)
-    }
-
-    let mounted = true
-    try {
-      const ws = new WebSocket(getWebSocketUrl())
-      wsRef.current = ws
-
-      ws.onopen = () => {
-        if (!mounted) return
-        setStatus('connected')
-        setRetryCount(0)
-      }
-
-      ws.onmessage = (ev) => {
-        if (!mounted) return
-        const raw = ev.data
-        try {
-          const parsed = JSON.parse(raw)
-          if (parsed.type === 'application_state') {
-            console.log('Received application_state:', parsed)
-            console.log('ib_positions:', parsed['ib_positions'])
-            setLastReceived(Date.now())
-            setWsData(parsed)
-          }
-        } catch (e) {
-          // ignore non-JSON messages
-        }
-      }
-
-      ws.onerror = (err) => {
-        if (!mounted) return
-        setStatus('error')
-        console.error('WebSocket error', err)
-      }
-
-      ws.onclose = () => {
-        if (!mounted) return
-        setStatus('closed')
-        const reconnectConfig = getReconnectConfig()
-        const nextRetry = Math.min(
-          reconnectConfig.initialDelay * Math.pow(reconnectConfig.backoffMultiplier, retryCount),
-          reconnectConfig.maxDelay
-        )
-        setRetryTimeout(nextRetry)
-        retryTimeoutRef.current = setTimeout(() => {
-          if (mounted) {
-            setRetryCount((c) => c + 1)
-            connectWs()
-          }
-        }, nextRetry)
-      }
-    } catch (err) {
-      setStatus('error')
-      console.error('WebSocket failed to construct', err)
-      const reconnectConfig = getReconnectConfig()
-      const nextRetry = Math.min(
-        reconnectConfig.initialDelay * Math.pow(reconnectConfig.backoffMultiplier, retryCount),
-        reconnectConfig.maxDelay
-      )
-      setRetryTimeout(nextRetry)
-      retryTimeoutRef.current = setTimeout(() => {
-        if (mounted) {
-          setRetryCount((c) => c + 1)
-          connectWs()
-        }
-      }, nextRetry)
-    }
-
-    return () => {
-      mounted = false
-    }
-  }
-
-  useEffect(() => {
-    connectWs()
-    return () => {
-      if (retryTimeoutRef.current) {
-        clearTimeout(retryTimeoutRef.current)
-      }
-      try {
-        if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-          wsRef.current.close()
-        }
-      } catch (e) {
-        // ignore
-      }
-    }
-  }, [])
 
   useEffect(() => {
     if (!lastReceived) {
@@ -176,10 +77,7 @@ function OpenPositionsPage() {
         elapsedSeconds={elapsedSeconds}
         retryTimeout={retryTimeout}
         retryCount={retryCount}
-        onReconnect={() => {
-          setRetryCount(0)
-          connectWs()
-        }}
+        onReconnect={reconnect}
       />
       
       <div style={{ marginBottom: 16 }}>
@@ -193,9 +91,13 @@ function OpenPositionsPage() {
               return
             }
             
+            const now = new Date()
+            const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`
+            
             const closeAllOrder = {
-              request_type: 'close_all_positions',
-              web_request_id: `close_all_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+              request_type: 'CLOSE_ALL_POSITIONS',
+              status: 'WEB_SENT',
+              web_request_id: `close_all_${timestamp}`,
             }
             console.log('Sending close all order:', closeAllOrder)
             
@@ -297,11 +199,15 @@ function OpenPositionsPage() {
                             return
                           }
                           
+                          const now = new Date()
+                          const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`
+                          
                           const closeOrder = {
-                            request_type: 'close_position',
+                            request_type: 'CLOSE_POSITION',
                             symbol: pos.symbol || pos.contract,
                             quantity: parseFloat(qty),
-                            web_request_id: `close_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                            status: 'WEB_SENT',
+                            web_request_id: `close_${timestamp}`,
                           }
                           console.log('Sending close order:', closeOrder)
                           
