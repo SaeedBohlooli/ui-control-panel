@@ -1,14 +1,35 @@
 /**
  * Configuration Loader
- * Three-level configuration hierarchy:
- * 1. Environment variables (.env files) - highest priority
- * 2. YAML config file (config.yaml) - medium priority
- * 3. Hardcoded defaults - lowest priority
+ * Two-level configuration hierarchy:
+ * 1. YAML config file (config.yaml) - highest priority
+ * 2. Hardcoded defaults - lowest priority
+ * 
+ * Configuration file priority:
+ * - First tries: ../../configs/config-control-panel.yaml (project config)
+ * - Falls back to: ./config.yaml (general config in project root)
  */
 
-import yamlConfigFile from '../../config.yaml'
+// Try to load configs using Vite's glob import with query parameter to bust cache
+const projectConfigs = import.meta.glob('../../configs/config-control-panel.yaml', { eager: true, query: '?raw', import: 'default' })
+const generalConfigs = import.meta.glob('../../config.yaml', { eager: true, query: '?raw', import: 'default' })
 
-// Hardcoded defaults (Level 3 - lowest priority)
+let yamlConfigFile = null
+let configSource = 'none'
+
+// Check project config first
+if (Object.keys(projectConfigs).length > 0) {
+  yamlConfigFile = Object.values(projectConfigs)[0]
+  configSource = 'project (../../configs/config-control-panel.yaml)'
+  console.log('Loaded project config from ../../configs/config-control-panel.yaml')
+} else if (Object.keys(generalConfigs).length > 0) {
+  yamlConfigFile = Object.values(generalConfigs)[0]
+  configSource = 'general (config.yaml)'
+  console.log('Loaded general config from config.yaml')
+} else {
+  console.log('No config file found, using defaults')
+}
+
+// Hardcoded defaults (Level 2 - lowest priority)
 const DEFAULTS = {
   projectName: 'u106_multi_account_algo_trading',
   ports: {
@@ -36,68 +57,47 @@ const DEFAULTS = {
   }
 }
 
-// Load YAML config (Level 2 - medium priority)
-const yamlConfig = yamlConfigFile || {}
+// Load YAML config (Level 1 - highest priority)
+const yamlConfig = yamlConfigFile?.control_panel || {}
 
 // Merge function to combine configurations
-function mergeConfig(defaults, yaml, env) {
+function mergeConfig(defaults, yaml) {
   return {
-    projectName: env.projectName || yaml.projectName || defaults.projectName,
+    projectName: yaml.projectName || defaults.projectName,
     ports: {
-      vite: env.ports?.vite || yaml.ports?.vite || defaults.ports.vite,
-      websocket: env.ports?.websocket || yaml.ports?.websocket || defaults.ports.websocket,
-      api: env.ports?.api || yaml.ports?.api || defaults.ports.api
+      vite: yaml.ports?.vite || defaults.ports.vite,
+      websocket: yaml.ports?.websocket || defaults.ports.websocket,
+      api: yaml.ports?.api || defaults.ports.api
     },
     websocket: {
-      url: env.websocket?.url || yaml.websocket?.url || defaults.websocket.url,
+      url: yaml.websocket?.url || defaults.websocket.url,
       reconnect: {
-        initialDelay: env.websocket?.reconnect?.initialDelay || yaml.websocket?.reconnect?.initialDelay || defaults.websocket.reconnect.initialDelay,
-        maxDelay: env.websocket?.reconnect?.maxDelay || yaml.websocket?.reconnect?.maxDelay || defaults.websocket.reconnect.maxDelay,
-        backoffMultiplier: env.websocket?.reconnect?.backoffMultiplier || yaml.websocket?.reconnect?.backoffMultiplier || defaults.websocket.reconnect.backoffMultiplier
+        initialDelay: yaml.websocket?.reconnect?.initialDelay || defaults.websocket.reconnect.initialDelay,
+        maxDelay: yaml.websocket?.reconnect?.maxDelay || defaults.websocket.reconnect.maxDelay,
+        backoffMultiplier: yaml.websocket?.reconnect?.backoffMultiplier || defaults.websocket.reconnect.backoffMultiplier
       }
     },
     api: {
-      baseUrl: env.api?.baseUrl || yaml.api?.baseUrl || defaults.api.baseUrl,
+      baseUrl: yaml.api?.baseUrl || defaults.api.baseUrl,
       endpoints: {
-        sendRequest: env.api?.endpoints?.sendRequest || yaml.api?.endpoints?.sendRequest || defaults.api.endpoints.sendRequest
+        sendRequest: yaml.api?.endpoints?.sendRequest || defaults.api.endpoints.sendRequest
       }
     },
     messageTypes: {
-      applicationState: env.messageTypes?.applicationState || yaml.messageTypes?.applicationState || defaults.messageTypes.applicationState,
-      appConfig: env.messageTypes?.appConfig || yaml.messageTypes?.appConfig || defaults.messageTypes.appConfig
+      applicationState: yaml.messageTypes?.applicationState || defaults.messageTypes.applicationState,
+      appConfig: yaml.messageTypes?.appConfig || defaults.messageTypes.appConfig
     }
-  }
-}
-
-// Load environment variables (Level 1 - highest priority)
-const envConfig = {
-  projectName: import.meta.env.VITE_PROJECT_NAME,
-  ports: {
-    vite: import.meta.env.VITE_PORT ? parseInt(import.meta.env.VITE_PORT) : undefined,
-    websocket: import.meta.env.VITE_WS_PORT ? parseInt(import.meta.env.VITE_WS_PORT) : undefined,
-    api: import.meta.env.VITE_API_PORT ? parseInt(import.meta.env.VITE_API_PORT) : undefined
-  },
-  websocket: {
-    url: import.meta.env.VITE_WS_URL,
-    reconnect: {
-      initialDelay: import.meta.env.VITE_WS_RECONNECT_INITIAL ? parseInt(import.meta.env.VITE_WS_RECONNECT_INITIAL) : undefined,
-      maxDelay: import.meta.env.VITE_WS_RECONNECT_MAX ? parseInt(import.meta.env.VITE_WS_RECONNECT_MAX) : undefined,
-      backoffMultiplier: import.meta.env.VITE_WS_RECONNECT_MULTIPLIER ? parseFloat(import.meta.env.VITE_WS_RECONNECT_MULTIPLIER) : undefined
-    }
-  },
-  api: {
-    baseUrl: import.meta.env.VITE_API_URL
   }
 }
 
 // Final merged configuration
-export const loadedConfig = mergeConfig(DEFAULTS, yamlConfig, envConfig)
+export const loadedConfig = mergeConfig(DEFAULTS, yamlConfig)
 
 // Log configuration source for debugging
 if (import.meta.env.DEV) {
   console.log('Configuration loaded:', {
     sources: {
-      env: Object.keys(envConfig).filter(k => envConfig[k] !== undefined).length > 0 ? 'loaded' : 'none',
+      configFile: configSource,
       yaml: Object.keys(yamlConfig).length > 0 ? 'loaded' : 'none',
       defaults: 'active'
     },
