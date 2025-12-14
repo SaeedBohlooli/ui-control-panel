@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import PageFooter from '../components/PageFooter'
 
 function Login({ onLogin }) {
   const [username, setUsername] = useState('')
@@ -165,6 +166,7 @@ function Login({ onLogin }) {
           <div>Password: <code style={{ background: '#e5e7eb', padding: '2px 6px', borderRadius: '4px' }}>password</code></div>
         </div>
       </div>
+      <PageFooter />
     </div>
   )
 }

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import PageFooter from '../components/PageFooter'
+import ConnectionStatus from '../components/ConnectionStatus'
 
 function Home({ onLogout }) {
   const [currentTime, setCurrentTime] = useState(new Date())
@@ -21,6 +23,7 @@ function Home({ onLogout }) {
         alignItems: 'center',
         gap: 12
       }}>
+        <ConnectionStatus />
         <div style={{ 
           fontSize: 18, 
           color: '#666', 
@@ -142,17 +145,7 @@ function Home({ onLogout }) {
         </div>
       </div>
 
-      <footer style={{ 
-        marginTop: 80, 
-        paddingTop: 20, 
-        borderTop: '1px solid #e5e7eb',
-        textAlign: 'center',
-        color: '#9ca3af',
-        fontSize: 14
-      }}>
-        <p style={{ margin: 0 }}>Multi-Account Algo Trading Dashboard</p>
-        <p style={{ margin: '8px 0 0 0' }}>© {new Date().getFullYear()}</p>
-      </footer>
+      <PageFooter />
     </div>
   )
 }

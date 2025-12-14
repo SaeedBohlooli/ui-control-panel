@@ -1,4 +1,9 @@
+import appConfig from '../config/appConfig'
+
 function PageFooter() {
+  const footerText = appConfig.footer?.text || 'Trading Control Panel Dashboard @ Zoitek.com   2014 - 2025'
+  const footerLink = appConfig.footer?.link || 'https://zoitek.com'
+
   return (
     <footer style={{ 
       marginTop: 60, 
@@ -8,8 +13,22 @@ function PageFooter() {
       color: '#9ca3af',
       fontSize: 14
     }}>
-      <p style={{ margin: 0 }}>Multi-Account Algo Trading Dashboard</p>
-      <p style={{ margin: '8px 0 0 0' }}>© {new Date().getFullYear()}</p>
+      <p style={{ margin: 0 }}>
+        <a 
+          href={footerLink} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          style={{ 
+            color: '#9ca3af', 
+            textDecoration: 'none',
+            transition: 'color 0.2s'
+          }}
+          onMouseEnter={(e) => e.target.style.color = '#3b82f6'}
+          onMouseLeave={(e) => e.target.style.color = '#9ca3af'}
+        >
+          {footerText}
+        </a>
+      </p>
     </footer>
   )
 }

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import ConnectionStatus from './ConnectionStatus'
 
 function PageHeader({ title, status, lastReceived, elapsedSeconds, retryTimeout, retryCount, onReconnect }) {
   const statusColor =
@@ -18,22 +19,28 @@ function PageHeader({ title, status, lastReceived, elapsedSeconds, retryTimeout,
       borderRadius: 8,
       border: '1px solid #e5e7eb'
     }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+          <Link to="/">
+            <button style={{ 
+              padding: '6px 12px',
+              fontSize: 14,
+              background: '#fff',
+              border: '1px solid #d1d5db',
+              borderRadius: 4,
+              cursor: 'pointer'
+            }}>
+              ← Home
+            </button>
+          </Link>
+          
+          <h2 style={{ margin: 0, fontSize: 20, color: '#111' }}>{title}</h2>
+        </div>
+        
+        <ConnectionStatus />
+      </div>
+      
       <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
-        <Link to="/">
-          <button style={{ 
-            padding: '6px 12px',
-            fontSize: 14,
-            background: '#fff',
-            border: '1px solid #d1d5db',
-            borderRadius: 4,
-            cursor: 'pointer'
-          }}>
-            ← Home
-          </button>
-        </Link>
-        
-        <h2 style={{ margin: 0, fontSize: 20, color: '#111' }}>{title}</h2>
-        
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 14, fontWeight: 'bold', color: '#555' }}>Status:</span>
           <span

@@ -30,3 +30,8 @@ control_panel:
   messageTypes:
     applicationState: application_state
     appConfig: app_config
+
+  # Footer configuration
+  footer:
+    text: "Trading Control Panel Dashboard @ Zoitek.com   2014 - 2025"
+    link: "https://zoitek.com"
