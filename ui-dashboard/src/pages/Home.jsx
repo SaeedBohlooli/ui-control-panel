@@ -53,7 +53,7 @@ function Home({ onLogout }) {
           Logout
         </button>
       </div>
-      <h1 style={{ marginBottom: 40, fontSize: 32 }}>Trading Dashboard</h1>
+      <h1 style={{ marginBottom: 40, fontSize: 32 }}>Control Panel</h1>
       
       <div style={{ marginBottom: 40 }}>
         <h2 style={{ fontSize: 20, marginBottom: 16, color: '#333' }}>Monitor</h2>

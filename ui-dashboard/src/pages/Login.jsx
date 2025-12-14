@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import PageFooter from '../components/PageFooter'
+import appConfig from '../config/appConfig'
 
 function Login({ onLogin }) {
   const [username, setUsername] = useState('')
@@ -9,7 +10,10 @@ function Login({ onLogin }) {
   const handleSubmit = (e) => {
     e.preventDefault()
     
-    if (username === 'username' && password === 'password') {
+    const validUsername = appConfig.auth?.username || 'username'
+    const validPassword = appConfig.auth?.password || 'password'
+    
+    if (username === validUsername && password === validPassword) {
       setError('')
       onLogin()
     } else {
@@ -27,15 +31,16 @@ function Login({ onLogin }) {
       background: '#f3f4f6',
       padding: '20px'
     }}>
-      <div style={{
-        background: 'white',
-        borderRadius: '8px',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-        border: '1px solid #e5e7eb',
-        padding: '40px',
-        width: '100%',
-        maxWidth: '400px'
-      }}>
+      <div>
+        <div style={{
+          background: 'white',
+          borderRadius: '8px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+          border: '1px solid #e5e7eb',
+          padding: '40px',
+          width: '100%',
+          maxWidth: '400px'
+        }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <h1 style={{ 
             margin: '0 0 8px 0', 
@@ -43,7 +48,7 @@ function Login({ onLogin }) {
             color: '#1f2937',
             fontWeight: '600'
           }}>
-            Trading Dashboard
+            Control Panel
           </h1>
           <p style={{ 
             margin: 0, 
@@ -151,22 +156,9 @@ function Login({ onLogin }) {
             Sign In
           </button>
         </form>
-
-        <div style={{
-          marginTop: '24px',
-          padding: '16px',
-          background: '#f3f4f6',
-          borderRadius: '8px',
-          fontSize: '12px',
-          color: '#6b7280',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontWeight: '500', marginBottom: '4px' }}>Demo Credentials</div>
-          <div>Username: <code style={{ background: '#e5e7eb', padding: '2px 6px', borderRadius: '4px' }}>username</code></div>
-          <div>Password: <code style={{ background: '#e5e7eb', padding: '2px 6px', borderRadius: '4px' }}>password</code></div>
-        </div>
       </div>
       <PageFooter />
+      </div>
     </div>
   )
 }
