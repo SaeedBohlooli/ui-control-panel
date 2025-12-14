@@ -6,8 +6,9 @@ function PageFooter() {
 
   return (
     <footer style={{ 
-      marginTop: 60, 
+      marginTop: 30, 
       paddingTop: 20, 
+      paddingBottom: 60,
       borderTop: '1px solid #e5e7eb',
       textAlign: 'center',
       color: '#9ca3af',
