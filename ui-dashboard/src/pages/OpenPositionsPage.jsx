@@ -10,6 +10,8 @@ function OpenPositionsPage() {
   const [elapsedSeconds, setElapsedSeconds] = useState(null)
   const [quantities, setQuantities] = useState({})
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' })
+  const [selectedPositions, setSelectedPositions] = useState({})
+  const [selectAll, setSelectAll] = useState(false)
 
   useEffect(() => {
     if (!lastReceived) {
@@ -66,6 +68,89 @@ function OpenPositionsPage() {
       key,
       direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
     }))
+  }
+
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedPositions({})
+    } else {
+      const allSelected = {}
+      sortedPositions.forEach((_, idx) => {
+        allSelected[idx] = true
+      })
+      setSelectedPositions(allSelected)
+    }
+    setSelectAll(!selectAll)
+  }
+
+  const handleSelectPosition = (idx) => {
+    setSelectedPositions((prev) => ({
+      ...prev,
+      [idx]: !prev[idx]
+    }))
+  }
+
+  const sendCloseRequestsWithDelay = async (closeOrders) => {
+    for (let i = 0; i < closeOrders.length; i++) {
+      try {
+        const response = await fetch(`${appConfig.api?.baseUrl}${appConfig.api?.endpoints?.sendRequest}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(closeOrders[i]),
+        })
+        const data = await response.json()
+        console.log(`Close request ${i + 1}/${closeOrders.length}:`, data)
+        
+        // Wait 400ms before next request (except for the last one)
+        if (i < closeOrders.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 400))
+        }
+      } catch (err) {
+        console.error(`Error sending close request ${i + 1}:`, err)
+      }
+    }
+  }
+
+  const handleCloseSelected = () => {
+    const selectedIndices = Object.keys(selectedPositions).filter(idx => selectedPositions[idx])
+    
+    if (selectedIndices.length === 0) {
+      alert('Please select at least one position to close')
+      return
+    }
+
+    const confirmed = window.confirm(
+      `Close ${selectedIndices.length} selected position(s)?\n\nThis will send ${selectedIndices.length} close request(s). Click Yes to confirm or No to cancel.`
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    const closeOrders = selectedIndices.map(idx => {
+      const pos = sortedPositions[idx]
+      const qty = quantities[idx] || pos.quantity || pos.position
+      const now = new Date()
+      const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}_${idx}`
+      
+      return {
+        request_type: 'CLOSE_POSITION',
+        symbol: pos.symbol || pos.contract,
+        quantity: parseFloat(qty),
+        status: 'WEB_SENT',
+        web_request_id: `close_${timestamp}`,
+      }
+    })
+
+    console.log(`Sending ${closeOrders.length} close requests with 200ms delay...`)
+    sendCloseRequestsWithDelay(closeOrders)
+      .then(() => {
+        alert(`${closeOrders.length} close request(s) sent successfully`)
+        setSelectedPositions({})
+        setSelectAll(false)
+      })
   }
 
   return (
@@ -130,6 +215,22 @@ function OpenPositionsPage() {
         >
           Close All Open Positions
         </button>
+        
+        <button 
+          onClick={handleCloseSelected}
+          style={{
+            padding: '8px 16px',
+            background: '#ea580c',
+            color: 'white',
+            border: 'none',
+            borderRadius: 4,
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            marginLeft: 8
+          }}
+        >
+          Close Selected Positions
+        </button>
       </div>
 
       {Array.isArray(positions) && positions.length > 0 ? (
@@ -138,6 +239,14 @@ function OpenPositionsPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 16, background: '#fff', border: '1px solid #ddd' }}>
             <thead>
               <tr style={{ borderBottom: '2px solid #ccc', background: '#f5f5f5' }}>
+                <th style={{ padding: 10, textAlign: 'center', width: 50 }}>
+                  <input 
+                    type="checkbox" 
+                    checked={selectAll}
+                    onChange={handleSelectAll}
+                    style={{ cursor: 'pointer' }}
+                  />
+                </th>
                 {positions.length > 0 && Object.keys(positions[0]).map((key) => (
                   <th 
                     key={key} 
@@ -164,6 +273,14 @@ function OpenPositionsPage() {
             <tbody>
               {sortedPositions.map((pos, idx) => (
                 <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
+                  <td style={{ padding: 10, textAlign: 'center' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={selectedPositions[idx] || false}
+                      onChange={() => handleSelectPosition(idx)}
+                      style={{ cursor: 'pointer' }}
+                    />
+                  </td>
                   {Object.entries(pos).map(([key, value]) => (
                     <td key={key} style={{ padding: 10 }}>
                       {typeof value === 'object' ? JSON.stringify(value) : String(value)}
