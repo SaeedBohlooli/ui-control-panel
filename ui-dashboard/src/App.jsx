@@ -8,10 +8,17 @@ import OpenPositionsPage from './pages/OpenPositionsPage'
 import OpenOrdersPage from './pages/OpenOrdersPage'
 import AccountSummaryPage from './pages/AccountSummaryPage'
 import ApplicationStateDetailsPage from './pages/ApplicationStateDetailsPage'
+import ConnectionConfigsPage from './pages/ConnectionConfigsPage'
+import appConfig from './config/appConfig'
 
 function App() {
   const [count, setCount] = useState(0)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+  // Set browser title from config
+  useEffect(() => {
+    document.title = appConfig.browserTitle || 'Control Panel'
+  }, [])
 
   // Check if user was previously authenticated
   useEffect(() => {
@@ -66,6 +73,10 @@ function App() {
       <Route
         path="/account_summary"
         element={<AccountSummaryPage state={appState} />}
+      />
+      <Route
+        path="/connection_configs"
+        element={<ConnectionConfigsPage state={appState} />}
       />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

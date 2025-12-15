@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import PageHeader from '../components/PageHeader'
 import PageFooter from '../components/PageFooter'
-import { getFullApiUrl } from '../config/appConfig'
+import appConfig from '../config/appConfig'
 import { useWebSocket } from '../hooks/useWebSocket'
 
 function OpenPositionsPage() {
@@ -101,7 +101,7 @@ function OpenPositionsPage() {
             }
             console.log('Sending close all order:', closeAllOrder)
             
-            fetch(getFullApiUrl('sendRequest'), {
+            fetch(`${appConfig.api?.baseUrl}${appConfig.api?.endpoints?.sendRequest}`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -211,7 +211,7 @@ function OpenPositionsPage() {
                           }
                           console.log('Sending close order:', closeOrder)
                           
-                          fetch(getFullApiUrl('sendRequest'), {
+                          fetch(`${appConfig.api?.baseUrl}${appConfig.api?.endpoints?.sendRequest}`, {
                             method: 'POST',
                             headers: {
                               'Content-Type': 'application/json',

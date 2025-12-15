@@ -3,7 +3,7 @@
  * Provides a single WebSocket connection shared across all pages
  */
 
-import { getWebSocketUrl, getReconnectConfig } from '../config/appConfig'
+import appConfig from '../config/appConfig'
 
 class WebSocketService {
   constructor() {
@@ -12,7 +12,7 @@ class WebSocketService {
     this.status = 'disconnected'
     this.retryCount = 0
     this.retryTimeoutId = null
-    this.reconnectConfig = getReconnectConfig()
+    this.reconnectConfig = appConfig.websocket?.reconnect || { initialDelay: 1000, maxDelay: 30000, backoffMultiplier: 2 }
     this.lastMessage = null
   }
 
@@ -28,8 +28,8 @@ class WebSocketService {
     }
 
     try {
-      console.log('Connecting to WebSocket:', getWebSocketUrl())
-      this.ws = new WebSocket(getWebSocketUrl())
+      console.log('Connecting to WebSocket:', appConfig.websocket?.url)
+      this.ws = new WebSocket(appConfig.websocket?.url)
 
       this.ws.onopen = () => {
         console.log('WebSocket connected')

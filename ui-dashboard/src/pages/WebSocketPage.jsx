@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import PageHeader from '../components/PageHeader'
 import PageFooter from '../components/PageFooter'
-import { getWebSocketUrl, getReconnectConfig } from '../config/appConfig'
+import appConfig from '../config/appConfig'
 
 function WebSocketPage({ title, messageType }) {
   const [wsData, setWsData] = useState(null)
@@ -24,7 +24,7 @@ function WebSocketPage({ title, messageType }) {
 
     let mounted = true
     try {
-      const ws = new WebSocket(getWebSocketUrl())
+      const ws = new WebSocket(appConfig.websocket?.url)
       wsRef.current = ws
 
       ws.onopen = () => {

@@ -97,6 +97,19 @@ function Home({ onLogout }) {
               Application Config
             </button>
           </Link>
+          <Link to="/connection_configs">
+            <button style={{ 
+              padding: '12px 24px', 
+              fontSize: 16,
+              background: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: 6,
+              cursor: 'pointer'
+            }}>
+              Connection Configs
+            </button>
+          </Link>
         </div>
       </div>
 

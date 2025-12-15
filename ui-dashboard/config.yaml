@@ -4,7 +4,7 @@
 
 # Project identifier
 control_panel:
-  projectName: u106_multi_account_algo_trading
+  projectName: Control Panel G
 
   # Server ports
   ports:
@@ -33,10 +33,13 @@ control_panel:
 
   # Footer configuration
   footer:
-    text: "Trading Control Panel Dashboard @ Zoitek.com   2014 - 2025"
+    text: "Trading Control Panel Dashboard @ Zoitek.com   2014 - 2025 G "
     link: "https://zoitek.com"
 
   # Authentication
   auth:
     username: "username"
     password: "password"
+
+  # Browser title
+  browserTitle: "Control Panel G"

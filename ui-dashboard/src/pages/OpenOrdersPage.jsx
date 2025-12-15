@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import PageHeader from '../components/PageHeader'
 import PageFooter from '../components/PageFooter'
-import { getFullApiUrl } from '../config/appConfig'
+import appConfig from '../config/appConfig'
 import { useWebSocket } from '../hooks/useWebSocket'
 
 function OpenOrdersPage() {
@@ -90,7 +90,7 @@ function OpenOrdersPage() {
             }
             console.log('Sending cancel all order:', cancelAllOrder)
             
-            fetch(getFullApiUrl('sendRequest'), {
+            fetch(`${appConfig.api?.baseUrl}${appConfig.api?.endpoints?.sendRequest}`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -191,7 +191,7 @@ function OpenOrdersPage() {
                       }
                       console.log('Sending cancel order:', cancelOrder)
                       
-                      fetch(getFullApiUrl('sendRequest'), {
+                      fetch(`${appConfig.api?.baseUrl}${appConfig.api?.endpoints?.sendRequest}`, {
                         method: 'POST',
                         headers: {
                           'Content-Type': 'application/json',
