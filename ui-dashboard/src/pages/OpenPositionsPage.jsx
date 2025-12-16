@@ -138,6 +138,7 @@ function OpenPositionsPage() {
       return {
         request_type: 'CLOSE_POSITION',
         symbol: pos.symbol || pos.contract,
+        contract_id: pos.contract_id,
         quantity: parseFloat(qty),
         status: 'WEB_SENT',
         web_request_id: `close_${timestamp}`,
@@ -322,6 +323,7 @@ function OpenPositionsPage() {
                           const closeOrder = {
                             request_type: 'CLOSE_POSITION',
                             symbol: pos.symbol || pos.contract,
+                            contract_id: pos.contract_id,
                             quantity: parseFloat(qty),
                             status: 'WEB_SENT',
                             web_request_id: `close_${timestamp}`,
