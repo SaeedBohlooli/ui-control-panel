@@ -33,7 +33,7 @@ function OpenPositionsPage() {
       const defaultQties = {}
       positions.forEach((pos, idx) => {
         if (!quantities[idx]) {
-          defaultQties[idx] = Math.abs(pos.abs_qty || pos.quantity || pos.position || 0)
+          defaultQties[idx] = Math.abs(pos.qty || pos.abs_qty || pos.quantity || pos.position || 0)
         }
       })
       setQuantities((prev) => ({ ...prev, ...defaultQties }))

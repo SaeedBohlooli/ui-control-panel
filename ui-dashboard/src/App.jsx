@@ -9,6 +9,7 @@ import OpenOrdersPage from './pages/OpenOrdersPage'
 import AccountSummaryPage from './pages/AccountSummaryPage'
 import ApplicationStateDetailsPage from './pages/ApplicationStateDetailsPage'
 import ConnectionConfigsPage from './pages/ConnectionConfigsPage'
+import SendOrderPage from './pages/SendOrderPage'
 import appConfig from './config/appConfig'
 
 function App() {
@@ -77,6 +78,10 @@ function App() {
       <Route
         path="/connection_configs"
         element={<ConnectionConfigsPage state={appState} />}
+      />
+      <Route
+        path="/send_order"
+        element={<SendOrderPage state={appState} />}
       />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

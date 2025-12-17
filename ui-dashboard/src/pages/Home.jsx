@@ -155,6 +155,19 @@ function Home({ onLogout }) {
               Account Summary
             </button>
           </Link>
+          <Link to="/send_order">
+            <button style={{ 
+              padding: '12px 24px', 
+              fontSize: 16,
+              background: '#10b981',
+              color: 'white',
+              border: 'none',
+              borderRadius: 6,
+              cursor: 'pointer'
+            }}>
+              Send Order
+            </button>
+          </Link>
         </div>
       </div>
 
