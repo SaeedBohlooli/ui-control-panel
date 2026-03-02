@@ -83,9 +83,11 @@ function App() {
         path="/send_order"
         element={<SendOrderPage state={appState} />}
       />
+      <Route path="/edit_config" element={<EditConfig />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }
 
+import EditConfig from './pages/EditConfig.jsx'
 export default App
