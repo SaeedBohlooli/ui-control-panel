@@ -9,8 +9,6 @@ control_panel:
   # Server ports
   ports:
     vite: 7106
-    websocket: 6106
-    api: 5106
 
   # WebSocket configuration
   websocket:
@@ -22,7 +20,7 @@ control_panel:
 
   # API configuration
   api:
-    baseUrl: http://127.0.0.1:5106
+    baseUrl: http://127.0.0.1:5107
     endpoints:
       sendRequest: /api/send-request
 
