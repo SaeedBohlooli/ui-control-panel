@@ -42,10 +42,24 @@ function EditConfig() {
   const handleSave = async () => {
     setStatus('Saving...');
     try {
-      // Replace with actual save logic in production
-      // Example: send yamlContent to backend
-      // await fetch('/configs/config-manual-settings.yaml', { method: 'POST', body: yamlContent });
-      setStatus('Saved (simulation)');
+      const apiBaseUrl = loadedConfig.api?.baseUrl || '';
+      const payload = {
+        web_request_id: '101',
+        content: yamlContent,
+        request_type: 'SAVE_FILE',
+        file_name: 'config-manual-settings-1.yaml',
+        memo: '',
+        status: 'WEB_SENT'
+      };
+      const response = await fetch(`${apiBaseUrl}/api/save-file`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+      if (!response.ok) throw new Error('Failed to save config');
+      setStatus('Saved');
     } catch (err) {
       setStatus('Error saving config');
     }
