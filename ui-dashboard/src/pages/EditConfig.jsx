@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import loadedConfig from '../config/configLoader';
 import yamlParser from 'js-yaml';
 import PageFooter from '../components/PageFooter';
@@ -70,8 +71,9 @@ function EditConfig() {
   return (
     <div style={{ minHeight: '100vh', padding: 40 }}>
       <h1 style={{ marginBottom: 40, fontSize: 32 }}>Edit Configs</h1>
-      <div style={{ marginBottom: 16 }}>
-        <button onClick={handleFetch} style={{ padding: '8px 16px', fontSize: 16, background: '#3b82f6', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', marginRight: 12 }}>Load Config</button>
+      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+        <button onClick={() => navigate(-1)} style={{ padding: '8px 16px', fontSize: 16, background: '#64748b', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer' }}>Back</button>
+        <button onClick={handleFetch} style={{ padding: '8px 16px', fontSize: 16, background: '#3b82f6', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer' }}>Load Config</button>
         <button onClick={handleSave} style={{ padding: '8px 16px', fontSize: 16, background: '#10b981', color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer' }}>Save Config</button>
         <span style={{ marginLeft: 16, color: '#666' }}>{status}</span>
       </div>
