@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import loadedConfig from '../config/configLoader';
+import yamlParser from 'js-yaml';
 import PageFooter from '../components/PageFooter';
 
 function EditConfig() {
@@ -29,9 +30,10 @@ function EditConfig() {
       if (!response.ok) throw new Error('Failed to fetch config');
       const data = await response.json();
       // Assume the API returns { content: '...' }
-          // Show content as formatted JSON
+          // Show content as YAML
+          // Show content as YAML, preserving original order
           setYamlContent(
-            data.content ? JSON.stringify(data.content, null, 2) : ''
+            data.content ? yamlParser.dump(data.content, { sortKeys: false }) : ''
           );
       setStatus('Loaded');
     } catch (err) {
@@ -47,7 +49,7 @@ function EditConfig() {
         web_request_id: '101',
         content: yamlContent,
         request_type: 'SAVE_FILE',
-        file_name: 'config-manual-settings-1.yaml',
+        file_name: 'config-manual-settings.yaml',
         memo: '',
         status: 'WEB_SENT'
       };
