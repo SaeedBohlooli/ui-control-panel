@@ -139,6 +139,7 @@ function OpenPositionsPage() {
         request_type: 'CLOSE_POSITION',
         symbol: pos.symbol || pos.contract,
         contract_id: pos.contract_id,
+        contract_type: pos.contract_type, // Added contract_type
         quantity: parseFloat(qty),
         status: 'WEB_SENT',
         web_request_id: `close_${timestamp}`,
@@ -324,6 +325,7 @@ function OpenPositionsPage() {
                             request_type: 'CLOSE_POSITION',
                             symbol: pos.symbol || pos.contract,
                             contract_id: pos.contract_id,
+                            contract_type: pos.contract_type, // Added contract_type
                             quantity: parseFloat(qty),
                             status: 'WEB_SENT',
                             web_request_id: `close_${timestamp}`,
