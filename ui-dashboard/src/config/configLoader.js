@@ -16,6 +16,40 @@ if (import.meta.env.DEV) {
     const response = await fetch('/api/config')
     const data = await response.json()
     yamlConfig = data.config || {}
+    
+    // Patch URLs that use 0.0.0.0, 127.0.0.1, or localhost with actual hostname
+    const patchUrl = (urlString) => {
+      if (!urlString) return urlString;
+      try {
+        const url = new URL(urlString);
+        if (url.hostname === '0.0.0.0' || url.hostname === '127.0.0.1' || url.hostname === 'localhost') {
+          url.hostname = window.location.hostname;
+          return url.toString().replace(/\/$/, '');
+        }
+      } catch (e) {
+        console.warn('Could not patch URL:', urlString, e);
+      }
+      return urlString;
+    };
+
+    // Patch api.baseUrl
+    if (yamlConfig.api?.baseUrl) {
+      const patched = patchUrl(yamlConfig.api.baseUrl);
+      if (patched !== yamlConfig.api.baseUrl) {
+        yamlConfig.api.baseUrl = patched;
+        console.log('Patched api.baseUrl to:', yamlConfig.api.baseUrl);
+      }
+    }
+
+    // Patch websocket.url
+    if (yamlConfig.websocket?.url) {
+      const patched = patchUrl(yamlConfig.websocket.url);
+      if (patched !== yamlConfig.websocket.url) {
+        yamlConfig.websocket.url = patched;
+        console.log('Patched websocket.url to:', yamlConfig.websocket.url);
+      }
+    }
+
     configSource = data.source === 'project' ? 'project (../../configs/config-control-panel.yaml)' : 
                    data.source === 'general' ? 'general (config.yaml)' : 'none'
     console.log('✓ Loaded config from', configSource)

@@ -12,7 +12,7 @@ control_panel:
 
   # WebSocket configuration
   websocket:
-    url: ws://0.0.0.0:6106
+    url: ws://0.0.0.0:6107
     reconnect:
       initialDelay: 1000
       maxDelay: 30000
